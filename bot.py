@@ -9,7 +9,7 @@ from array import array
 
 bot = telebot.TeleBot(config.token)
 user_dict = {'verifier': 'True'}
-song_dict = {'saved': 'BQADAgADmwADQwjCDvJYaFVLGOVhAg', 'allard': 'BQADAgADmQADQwjCDmGENRjiYpxCAg', 'last': 'BQADAgADmgADQwjCDpbjSwJaW-qIAg', 'rebecca': 'BQADAgADmAADQwjCDmeL1_QqIzn4Ag', 'first': 'BQADAgADlwADQwjCDqrF79xlTL1dAg', 'beatles_minus': 'BQADAgADnAADQwjCDh3oEBwncGIoAg'}
+song_dict = {'saved': 'BQADAgADmwADQwjCDvJYaFVLGOVhAg', 'allard': 'BQADAgADmQADQwjCDmGENRjiYpxCAg', 'last': 'BQADAgADmgADQwjCDpbjSwJaW-qIAg', 'rebecca': 'BQADAgADmAADQwjCDmeL1_QqIzn4Ag', 'first': 'BQADAgADlwADQwjCDqrF79xlTL1dAg', 'Yesterday': 'BQADAgADnAADQwjCDh3oEBwncGIoAg'}
 
     #'beatles_beep1': 'BQADAgADgwADQwjCDvuLATG6vGR7Ag', 'last': 'BQADAgADggADQwjCDi4KY1l6lRFLAg', 'saved': 'BQADAgADfgADQwjCDp9prPdAo_oTAg', 'Amber3': 'BQADAgADWQADQwjCDkA6Jautl_5MAg', 'Beatles2': 'BQADAgADawADQwjCDgexoI6odrsAAQI', 'allard': 'BQADAgADgQADQwjCDmShucx0N776Ag', 'first': 'BQADAgADfwADQwjCDjurv3e4xyhiAg', 'rebecca': 'BQADAgADgAADQwjCDjOjHyXaw5VKAg'}
 #{'rebecca': 'BQADAgADaAADQwjCDt5vQxKhjsZpAg', 'last': 'BQADAgADagADQwjCDkjbBXe85WzFAg', 'Beatles2': 'BQADAgADawADQwjCDgexoI6odrsAAQI', 'first': 'BQADAgADZwADQwjCDlhT5C3hAkowAg', 'Amber3': 'BQADAgADWQADQwjCDkA6Jautl_5MAg', 'allard': 'BQADAgADaQADQwjCDnVN-Qcx8LzdAg', 'saved': 'BQADAgADZgADQwjCDmWGQq_fFeLjAg'}
@@ -30,7 +30,7 @@ words_array = ['Yesterday', 'all my troubles seemed so far away','Now it looks a
 delay_array = [4.4, 7.82, 12.66, 16.85, 19.53, 22.10, 25.40, 27.32, 30.28, 31.46,34.32,36.72,39.19]
 correction = 0.8
 
-my_array = ['first', 'rebecca', 'allard', 'last','saved', 'beatles_minus']
+my_array = ['Wind of change', 'Roxanne', 'Alleine Zu zweit', 'All you need is love','Smoke on the water', 'Yesterday']
 
 
 class User:
@@ -45,7 +45,7 @@ def process_start(message):
     try:
         chat_id = message.chat.id               
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup.add('Popular', 'Some Crap')
+        markup.add('Popular', 'Genres')
         msg = bot.reply_to(message, 'Choose the track', reply_markup=markup)
         bot.register_next_step_handler(msg, process_choose_category)
     except Exception as e:
@@ -84,11 +84,11 @@ def process_choose_category(message):
             #print(song_dict)
             bot.register_next_step_handler(msg, after_song_is_chosen)
         else:
-            if (choose == u'Some Crap'):
+            if (choose == u'Genres'):
                 markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-                markup.add('Popular', 'Some Crap')
+                markup.add('Popular', 'Genres')
                 msg = bot.reply_to(message, 'Choose the track', reply_markup=markup)
-                msg = bot.reply_to(message, 'We don\'t have crap.', reply_markup=markup)
+                msg = bot.reply_to(message, 'If you want this feature, you have to donate', reply_markup=markup)
                 bot.register_next_step_handler(msg, process_choose_category)
             else:
                 raise Exception()
@@ -119,6 +119,7 @@ def after_song_is_delivered(message):
     try:        
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         markup.row('Stop')
+        markup.row('Get info')
         msg = bot.reply_to(message, 'Press here to stop the lyrics', reply_markup=markup)
         bot.register_next_step_handler(msg, after_stop_is_pressed)
         i = 0
@@ -164,12 +165,19 @@ def enable_verifier():
 
 def after_stop_is_pressed(message):
     disable_verifier()
+    
+    
     try:
-        chat_id = message.chat.id               
+        chat_id = message.chat.id
+        chosen = message.text
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup.add('Popular', 'Some Crap')        
-        msg = bot.reply_to(message, 'Choose the track', reply_markup=markup)
-        bot.register_next_step_handler(msg, process_choose_category)
+        markup.add('Popular', 'Genres') 
+        if (chosen == u'Get info'):
+            msg = bot.reply_to(message, 'I\'ll tell you nothing! Choose another category', reply_markup=markup)
+            bot.register_next_step_handler(msg, process_choose_category)
+        else:                           
+            msg = bot.reply_to(message, 'Choose the category', reply_markup=markup)
+            bot.register_next_step_handler(msg, process_choose_category)
     except Exception as e:
         bot.reply_to(message, e)
 #    process_age_step(message)
